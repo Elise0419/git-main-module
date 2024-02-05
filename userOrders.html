@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>userOrders</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100&display=swap');
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: dimgray;
+        }
+
+        .userOrders {
+            letter-spacing: 0.1rem;
+
+        }
+
+        caption {
+            font-size: larger;
+        }
+
+        caption,
+        th,
+        td {
+            border: solid lightblue 3px;
+            padding: 1.5rem 1.5rem;
+            border-radius: 0.5rem;
+        }
+
+        tfoot th,
+        tfoot td {
+            border: solid lightsalmon 3px;
+        }
+
+        .totalPrice,
+        .totalAmount {
+            text-align: right;
+        }
+    </style>
+</head>
+
+<body>
+    <table class="userOrders">
+        <caption>
+            顧客訂單總覽
+        </caption>
+        <thead>
+            <tr>
+                <th scope="col">訂單數量</th>
+                <th scope="col">訂單編號</th>
+                <th scope="col">顧客名稱</th>
+                <th scope="col">顧客年紀</th>
+                <th scope="col">顧客編號</th>
+                <th scope="col">購物商品</th>
+                <th scope="col">商品價格</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+        <tfoot>
+            <tr>
+                <th class="totalAmount"></th>
+                <th colspan="6" class="totalPrice"></th>
+            </tr>
+        </tfoot>
+    </table>
+    <script>
+        const users = [
+            { userId: 'u01', name: 'Alice', age: 28 },
+            { userId: 'u02', name: 'Bob', age: 35 },
+            { userId: 'u03', name: 'Charlie', age: 22 },
+        ]
+
+        const orders = [
+            { orderId: 'o01', userId: 'u01', product: 'Laptop', price: 1200 },
+            { orderId: 'o02', userId: 'u02', product: 'Smartphone', price: 800 },
+            { orderId: 'o03', userId: 'u01', product: 'Headphones', price: 150 },
+            { orderId: 'o04', userId: 'u03', product: 'Camera', price: 1000 },
+            { orderId: 'o05', userId: 'u02', product: 'Tablet', price: 500 },
+        ]
+
+        // 合併雙表格
+        function Integrate() {
+            const userOrders = {};
+
+            users.forEach(user => {
+                userOrders[user.userId] = { ...user, orders: [] };
+
+                orders.forEach(order => {
+                    if (order.userId === user.userId) {
+                        userOrders[user.userId].orders.push(order);
+                    }
+                });
+            })
+            return userOrders;
+        };
+
+        // 將整合資料進行逐一輸出
+        function tableData(data) {
+            // 選取渲染位置
+            const tbody = document.querySelector('.userOrders tbody');
+
+            // 計算商品總數的起始值
+            let index = 1;
+
+            for (const userId in data) {
+                const user = data[userId];
+
+                // 抓出顧客每一個訂單
+                // 並回傳對應表格數據
+                user.orders.forEach((order) => {
+                    const row = document.createElement('tr');
+
+                    row.innerHTML = `
+                    <td>${index}</td>
+                    <td>${order.orderId}</td>
+                    <td>${user.name}</td>
+                    <td>${user.age}</td>
+                    <td>${user.userId}</td>
+                    <td>${order.product}</td>
+                    <td>${order.price}</td>
+                    `
+                    tbody.appendChild(row);
+                    index++;
+                });
+            }
+
+            // 計算營業額
+            const totalPrice = orders.reduce((sum, order) => sum + order.price, 0);
+            document.querySelector('.totalPrice').textContent = '總計: ' + totalPrice;
+            // 計算訂單量
+            const totalAmount = orders.length
+            document.querySelector('.totalAmount').textContent = '訂單總數: ' + totalAmount;
+        }
+
+        const data = Integrate();
+        tableData(data);
+    </script>
+</body>
+
+</html>

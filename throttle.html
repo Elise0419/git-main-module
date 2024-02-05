@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>throttle</title>
+    <style>
+        html,
+        body,
+        .ground {
+            height: 100%;
+        }
+
+        body {
+            background-color: #cce6fd;
+            overflow: hidden;
+            animation: sky 10s linear;
+        }
+
+        .sky {
+            position: relative;
+        }
+
+        .cloud {
+            margin: 5% 0 0 100%;
+            position: relative;
+        }
+
+        .cloud:before,
+        .cloud:after {
+            position: absolute;
+            content: '';
+        }
+
+        .cloud,
+        .cloud:before,
+        .cloud:after {
+            background: white;
+            border-radius: 50%;
+            border: 25px solid white;
+            width: 0.5%;
+            overflow: visible;
+        }
+
+        .cloud:before {
+            top: -35px;
+            right: -60px;
+            border-width: 30px;
+        }
+
+        .cloud:after {
+            bottom: -25px;
+            right: -95px;
+            border-width: 28px;
+        }
+
+        .sky .cloud:nth-child(1) {
+            -webkit-animation: cloud 10s;
+            animation: cloud 10s;
+        }
+
+        .sky .cloud:nth-child(2) {
+            -webkit-animation: cloud 10s;
+            animation: cloud 10s;
+        }
+
+        .stage:after {
+            content: ' ';
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-top: 3px solid #205c6b;
+            border-bottom: 3px dashed #205c6b;
+        }
+
+        .train {
+            position: absolute;
+            bottom: 10px;
+            width: 310px;
+            z-index: 1;
+        }
+
+        .trainBody,
+        .cabin,
+        .chimney {
+            border-radius: 4px 4px 0 0;
+            border-top: 4px solid #ffc928;
+        }
+
+        .trainBody,
+        .motor {
+            border-bottom: 2px solid #ffc928;
+        }
+
+        .trainBody,
+        .trainHead {
+            display: inline-block;
+            width: 70px;
+            height: 55px;
+            background-color: #e04f60;
+            position: relative;
+        }
+
+        .trainBody:before,
+        .trainBody:after,
+        .motor:before,
+        .motor:after,
+        .cabin:after {
+            content: ' ';
+            color: white;
+            padding: 6px;
+            position: absolute;
+            border-radius: 46%;
+            border: 6px solid #333;
+            bottom: -10px;
+            background-color: #666;
+            -webkit-animation: spin 10s linear;
+            -moz-animation: spin 10s linear;
+            animation: spin 10s linear;
+        }
+
+        .trainBody:before {
+            left: 6px;
+        }
+
+        .trainBody:after {
+            right: 6px;
+        }
+
+        .motor:before {
+            left: 32px;
+        }
+
+        .motor:after {
+            right: 4px;
+        }
+
+        .cabin:after {
+            bottom: -50px;
+            padding: 8px;
+            left: 3px;
+        }
+
+        .trainHead {
+            background-color: transparent;
+        }
+
+        .trainHead .cabin {
+            width: 58px;
+            height: 35px;
+            background-color: #e04f60;
+            position: relative;
+            z-index: 1;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .trainHead .cabin:before {
+            content: ' ';
+            width: 25px;
+            height: 18px;
+            position: absolute;
+            top: 10px;
+            left: 15px;
+            border-radius: 3px;
+            border: 3px solid pink;
+            background-color: #f1f1f1;
+        }
+
+        .trainHead .motor {
+            display: inline-block;
+            width: 85px;
+            height: 40px;
+            background-color: #e04f60;
+            position: relative;
+            border-radius: 0 8px 0px 0px;
+        }
+
+        .trainHead .chimney {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background-color: #e04f60;
+            right: -6px;
+            bottom: 10px;
+        }
+
+        .trainHead .light {
+            content: " ";
+            position: absolute;
+            right: -10px;
+            bottom: 0;
+            border-radius: 50%;
+            border: 3px solid pink;
+        }
+
+        .train {
+            -webkit-animation: voyage 10s linear;
+            animation: train 10s linear;
+            left: -310px;
+        }
+
+        .go {
+            background-color: transparent;
+            font-size: xx-large;
+            border: dashed 0.3rem lightpink;
+            padding: 0.5rem 1.5rem;
+            border-radius: 1rem;
+            color: white;
+        }
+
+        .timer {
+            font-size: 2rem;
+            color: white;
+            margin-top: 10px;
+        }
+
+        .prompt {
+            color: white;
+            font-size: small;
+        }
+
+        .text {
+            text-align: center;
+            position: relative;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, 50%);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 我想要實現火車動畫 -->
+    <!-- 使用 throttle 控制其被重複執行的秒數  -->
+
+    <section class="stage">
+        <div class="sky">
+            <div class="cloud"></div>
+            <div class="cloud"></div>
+        </div>
+
+        <div class="text">
+            <button class="go">GO!</button>
+            <div class="timer">
+                15
+            </div>
+            <p class="prompt">(Trains will only start every 15 seconds.)</p>
+        </div>
+
+        <div class="train">
+            <div class="trainBody"></div>
+            <div class="trainBody"></div>
+            <div class="trainBody"></div>
+            <div class="trainHead">
+                <div class="cabin"></div>
+                <div class="motor"></div>
+                <div class="chimney">
+                    <div class="smoke"></div>
+                </div>
+                <div class="light"></div>
+            </div>
+        </div>
+    </section>
+    <script>
+        // 用 throttle 控制程式輸出次數
+        function throttle(fn, delay = 15000) {
+            let timer = null;
+            return (...args) => {
+                if (!timer) {
+                    fn(...args);
+                    timer = setTimeout(() => {
+                        timer = null;
+                    }, delay);
+                }
+            };
+        }
+
+        // 設定動畫啟動與否
+        let animationStarted = false;
+
+        // animate 的新增和移除
+        const animateTrain = () => {
+            if (!animationStarted) {
+                animationStarted = true;
+
+                const animateKeyframes = `
+                @keyframes sky {
+                    0% {
+                        background-color: #cce6fd;
+                    }
+
+                    50% {
+                        background-color: #252645;
+                    }
+
+                    100% {
+                        background-color: #cce6fd;
+                    }
+                }
+
+                @keyframes cloud {
+                    0% {
+                        right: 0;
+                    }
+
+                    100% {
+                        right: 110%;
+                    }
+                }
+
+                @keyframes train {
+                    0% {
+                        left: -310px;
+                    }
+
+                    100% {
+                        left: 100%;
+                    }
+                }
+
+                @keyframes spin {
+                    100% {
+                        transform: rotate(360deg);
+                    }
+                }
+                `
+
+                const styleTag = document.createElement('style');
+                styleTag.innerHTML = animateKeyframes;
+                document.head.appendChild(styleTag);
+
+                // 每十五秒動畫將重置
+                // console 會在重新出發時顯示 prompt
+                setTimeout(() => {
+                    animationStarted = false;
+                    styleTag.remove();
+                    console.log('Conductor: The train starts running.');
+                }, 15000);
+            }
+        };
+
+        // 選取 GO button 並為其增加 onclick 監聽事件
+        // 呼叫 throttle 避免使用者多次觸發
+        document.querySelector(".go").addEventListener("click", throttle(() => {
+            animateTrain();
+
+            // 設置定時器顯示於畫面
+            let timeLeft = 15;
+            const timer = setInterval(() => {
+                timeLeft--;
+                document.querySelector(".timer").textContent = timeLeft;
+                if (timeLeft === 0) {
+                    clearInterval(timer);
+                    document.querySelector(".go").disabled = false;
+                }
+            }, 1000);
+
+            // 讓按鈕失效
+            document.querySelector(".go").disabled = true;
+        }));
+
+    </script>
+
+</body>
+
+</html>
